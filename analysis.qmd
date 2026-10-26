@@ -25,6 +25,46 @@ income_tx <- get_acs(
 ```
 
 ```{r}
+#| message: false
+edu_state <- get_acs(
+  geography = "state",
+  variables = c("B15003_022", "B15003_023", "B15003_024", "B15003_025"),
+  summary_var = "B15003_001",
+  year = 2020
+)
+```
+
+```{r}
+edu_state |>
+  group_by(GEOID, NAME) |>
+  summarise(
+    bachelors_plus = sum(estimate, na.rm = TRUE),
+    total_adults = first(summary_est),
+    .groups = "drop"
+  ) |>
+  mutate(percent_bachelors_plus = 100 * bachelors_plus / total_adults) |>
+  ggplot(aes(
+    x = reorder(NAME, percent_bachelors_plus),
+    y = percent_bachelors_plus
+  )) +
+  geom_col(aes(fill = percent_bachelors_plus)) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::label_percent(scale = 1)) +
+  scale_fill_viridis_c(option = "cividis", guide = "none") +
+  labs(
+    title = "Bachelor's Degree or Higher Attainment by State",
+    x = NULL,
+    y = "Adults with a bachelor's degree or higher",
+    caption = "Source: U.S. Census Bureau, 2020 ACS 5-year estimates (via tidycensus)."
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    plot.caption = element_text(hjust = 0)
+  )
+```
+
+```{r}
 ggplot(income_tx) +
   geom_sf(aes(fill = estimate), color = "white", linewidth = 0.1) +
   scale_fill_viridis_c(
