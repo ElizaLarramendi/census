@@ -44,7 +44,7 @@ county_age <- age_ca |>
   pivot_wider(names_from = variable, values_from = estimate)
 
 ggplot(county_age, aes(x = population, y = median_age)) +
-  geom_point() +
+  geom_point(color = "steelblue", alpha = 0.8, size = 2) +
   geom_text(
     data = slice_max(county_age, population, n = 5),
     aes(label = NAME),
